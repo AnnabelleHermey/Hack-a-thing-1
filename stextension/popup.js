@@ -33,6 +33,13 @@ function formatTime(seconds){
 // learnt a lot from chrome for developers help page
 // also the for loop and reduce statement was created with Chat
 async function load(){
+  try {
+    await chrome.runtime.sendMessage({ type: "FLUSH_NOW" });
+  } catch (e) {
+    // Not fatal: popup can still show stored values
+    console.warn("FLUSH_NOW failed:", e);
+  }
+
   const day = todayKey();
   document.getElementById("date").textContent = day;
 

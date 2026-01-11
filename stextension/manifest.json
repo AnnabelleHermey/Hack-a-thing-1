@@ -1,10 +1,10 @@
 
 {
   "manifest_version": 3,
-  "name": "Time on Site (Today)",
+  "name": "Site Time (Today)",
   "version": "0.1.0",
   "description": "Tracks time spent per domain each day and shows a summary in the popup.",
-  "permissions": ["tabs", "storage"],
+  "permissions": ["tabs", "storage", "alarms"],
   "host_permissions": ["<all_urls>"],
   "action":{
     "default_title": "Time on Site",

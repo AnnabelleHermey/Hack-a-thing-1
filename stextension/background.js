@@ -104,8 +104,49 @@ chrome.windows.onFocusChanged.addListener(async (windowId) =>{
   if (tab) await setCurrentFromTab(tab);
 });
 
+// so time accumulates even when you stay on one tab
+// had a bug and couldn't figure out why it stopped counting time and then I realized I was doing nothing to count time if you are there for a while
+// Updated by Claude Code (Sonnet 4.5) - Hybrid approach using both setInterval and chrome.alarms
+// setInterval provides second-level accuracy when service worker is active
+// chrome.alarms persists across service worker suspensions to prevent losing time
+let tickInterval = null;
+
+function startTicking() {
+  if (tickInterval) clearInterval(tickInterval);
+  // Tick every 1 second for accurate time tracking
+  tickInterval = setInterval(async () => {
+    await addTimeForCurrent(Date.now());
+  }, 1000);
+}
+
+// Updated by Claude Code (Sonnet 4.5) - Added chrome.alarms as backup for when service worker suspends
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== "keepalive") return;
+  // When alarm fires, flush current time and restart setInterval if needed
+  await addTimeForCurrent(Date.now());
+  startTicking();
+});
+
+// I noticed that I wasn't updating the popup while on the tab and the "Flush_now" was what Chat reccomended to fix this 
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg?.type === "FLUSH_NOW") {
+    addTimeForCurrent(Date.now()).then(() => sendResponse({ ok: true }));
+    return true;
+  }
+});
+
+
+
 // initialize on start
+// Updated by Claude Code (Sonnet 4.5) - Use both setInterval and chrome.alarms for reliability
+// chrome.alarms keeps service worker alive and handles suspensions
 async function init(){
+  // Create persistent alarm to keep service worker alive and handle suspensions
+  await chrome.alarms.create("keepalive", { periodInMinutes: 1 });
+
+  // Start setInterval for second-level accuracy
+  startTicking();
+
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   if (tab) await setCurrentFromTab(tab);
 }
