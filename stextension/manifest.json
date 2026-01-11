@@ -1,0 +1,16 @@
+
+{
+  "manifest_version": 3,
+  "name": "Time on Site (Today)",
+  "version": "0.1.0",
+  "description": "Tracks time spent per domain each day and shows a summary in the popup.",
+  "permissions": ["tabs", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "action":{
+    "default_title": "Time on Site",
+    "default_popup": "popup.html"
+  },
+  "background":{
+    "service_worker": "background.js"
+  }
+}

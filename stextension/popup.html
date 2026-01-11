@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- This Chrome extension was built with help from:
+     ChatGPT (OpenAI)
+     https://www.youtube.com/watch?v=60MRE4qb8PU
+     https://www.youtube.com/watch?v=Zt_6UXvoKHM
+     Used for learning Chrome Extension APIs and popup structure. 
+     Most of this knowledge came from cs52, but I did use Chat wheb I got stuck or if I firgot some, so sporadic use here-->
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; width: 320px; margin: 12px; }
+      h1{ font-size: 16px; margin: 0 0 8px; }
+      .muted{ color: #666; font-size: 12px; }
+      .row{ display: flex; justify-content: space-between; gap: 12px; }
+      .card{ padding: 10px; border: 1px solid #ddd; border-radius: 10px; margin-top: 10px; }
+      button{ width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; }
+      ol{ padding-left: 18px; margin: 8px 0 0; }
+      li{ margin: 6px 0; }
+      .time{ font-variant-numeric: tabular-nums; }
+    </style>
+  </head>
+  <body>
+    <h1>Time on Site (Today)</h1>
+    <div class="muted" id="date"></div>
+
+    <div class="card">
+      <div class="row">
+        <div>Total</div>
+        <div class="time" id="total">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="align-items: baseline;">
+        <div>Top sites</div>
+        <div class="muted">(today)</div>
+      </div>
+      <ol id="list"></ol>
+      <div class="muted" id="empty" style="display:none; margin-top:8px;">No data yet. Browse a bit 🙂</div>
+    </div>
+
+    <div class="card">
+      <button id="reset">Reset today</button>
+      <div class="muted" style="margin-top:8px;">Counts only when a Chrome window is focused.</div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
