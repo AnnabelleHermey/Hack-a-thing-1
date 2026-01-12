@@ -1,4 +1,7 @@
 <!doctype html>
+<!-- This Chrome extension was built with help from:
+     ChatGPT (OpenAI)
+     Most of this knowledge came from cs52, but I did use Chat when I got stuck or if I forgot some, so sporadic use here-->
 <html>
   <head>
     <meta charset="utf-8" />
@@ -20,13 +23,5 @@
       <p>You hit your limit for this site today. Close this tab or go do literally anything else for 2 minutes.</p>
     </div>
 
-    <script>
-      const params = new URLSearchParams(location.search);
-      const from = params.get("from");
-      document.getElementById("msg").textContent = from
-        ? `Limit reached for: ${from}`
-        : "Limit reached for this site.";
-
-    </script>
   </body>
 </html>

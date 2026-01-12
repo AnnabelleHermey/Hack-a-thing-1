@@ -108,6 +108,8 @@ chrome.windows.onFocusChanged.addListener(async (windowId) =>{
   if (tab) await setCurrentFromTab(tab);
 });
 
+// worked with Chat to add this extra feature, had it walk me through potential solutions and then coded my favorite one
+// used a lot of chrome dev storage instructions for syntax an how to reference old data
 async function maybeRedirectIfOverLimit(domain) {
   if (!domain || !current.tabId) return;
 
@@ -122,13 +124,13 @@ async function maybeRedirectIfOverLimit(domain) {
   const seconds = usage[domain] || 0;
   if (seconds < LIMIT_SECONDS_PER_DOMAIN) return;
 
-  // Only redirect once per domain per day
+  // redirect once per domain per day
   if (redirected[domain]) return;
 
   redirected[domain] = true;
   await chrome.storage.local.set({ [redirectedKey]: redirected });
 
-  // Redirect active tab to extension break page
+  // redirect to break page
   const breakUrl = chrome.runtime.getURL(`break.html?from=${encodeURIComponent(domain)}`);
   await chrome.tabs.update(current.tabId, { url: breakUrl });
 }
