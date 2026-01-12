@@ -85,6 +85,8 @@ I used ChatGPT to help scaffold and understand the structure of a Chrome Extensi
 - How to build a popup UI with `popup.html` and `popup.js`
 - For help writing this file
 
+I also practiced using Claude to debug my timing issues after trying to debug something for too many hours and had it cite itself where it modified things. So cool.
+
 I also referenced the following tutorials to understand Chrome Extension development and APIs:
 
 - *How to Make a Chrome Extension*  
