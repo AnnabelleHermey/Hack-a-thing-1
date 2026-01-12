@@ -9,6 +9,8 @@
 // These sources were used for learning Chrome Extension APIs and patterns.
 // Code was written and adapted specifically for this project in compliance
 // with the Academic Honor Principle.
+const LIMIT_SECONDS_PER_DOMAIN = 20*60; // 20 minutes
+const REDIRECTED_KEY_PREFIX = "redirected:"; // per-day map
 
 let current ={
   tabId: null,
@@ -54,9 +56,11 @@ async function addTimeForCurrent(nowMs){
   usage[current.domain] = (usage[current.domain] || 0) + deltaSec;
 
   await chrome.storage.local.set({ [storageKey]: usage });
+  
 
   // move start forward to avoid double-counting
   current.startMs = nowMs;
+  await maybeRedirectIfOverLimit(current.domain);
 }
 
 // used chat to figure out how to structue this specifically
@@ -104,6 +108,32 @@ chrome.windows.onFocusChanged.addListener(async (windowId) =>{
   if (tab) await setCurrentFromTab(tab);
 });
 
+async function maybeRedirectIfOverLimit(domain) {
+  if (!domain || !current.tabId) return;
+
+  const day = todayKey();
+  const usageKey = `usage:${day}`;
+  const redirectedKey = `${REDIRECTED_KEY_PREFIX}${day}`;
+
+  const data = await chrome.storage.local.get([usageKey, redirectedKey]);
+  const usage = data[usageKey] || {};
+  const redirected = data[redirectedKey] || {};
+
+  const seconds = usage[domain] || 0;
+  if (seconds < LIMIT_SECONDS_PER_DOMAIN) return;
+
+  // Only redirect once per domain per day
+  if (redirected[domain]) return;
+
+  redirected[domain] = true;
+  await chrome.storage.local.set({ [redirectedKey]: redirected });
+
+  // Redirect active tab to extension break page
+  const breakUrl = chrome.runtime.getURL(`break.html?from=${encodeURIComponent(domain)}`);
+  await chrome.tabs.update(current.tabId, { url: breakUrl });
+}
+
+
 // so time accumulates even when you stay on one tab
 // had a bug and couldn't figure out why it stopped counting time and then I realized I was doing nothing to count time if you are there for a while
 // Updated by Claude Code (Sonnet 4.5) - Hybrid approach using both setInterval and chrome.alarms
@@ -142,6 +172,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // chrome.alarms keeps service worker alive and handles suspensions
 async function init(){
   // Create persistent alarm to keep service worker alive and handle suspensions
+  // Updated by Claude Code (Sonnet 4.5) - Removed duplicate "tick" alarm
   await chrome.alarms.create("keepalive", { periodInMinutes: 1 });
 
   // Start setInterval for second-level accuracy
